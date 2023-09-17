@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="{{asset('style.css') }}" rel="stylesheet">
+    <script src="{{ asset('app.js') }}"></script>
     <title>Role Management</title>
 </head>
 
@@ -70,22 +71,57 @@
             </div>
         </div>
     </div>
-    <div class="user-container">
-        <div class="userinfo-container">
-            <div class="userinfo-name-container">
-                Lorem Ipsum
+    <div id="user-list">
+        <div class="user-container">
+            <div class="userinfo-container">
+                <div class="userinfo-name-container">
+                </div>
+                <div class="userinfo-username-container">
+                </div>
             </div>
-            <div class="userinfo-username-container">
-                Lorem Ipsum
+            <div class="edit-delete-container">
+                <img src="edit-icon.svg" alt="edit icon" class="edit-icon">
+                <img src="delete-icon.svg" alt="delete icon" class="delete-icon">
             </div>
         </div>
-        <div class="edit-delete-container">
-            <img src="edit-icon.svg" alt="edit icon" class="edit-icon">
-            <img src="delete-icon.svg" alt="delete icon" class="delete-icon">
-        </div>
+    </div>
+
     </div>
     </div>
-    </div>
+    <script>
+        async function displayUserByRole(role) {
+            try {
+                const users = await getUsersByRole(role);
+                const userListContainer = document.getElementById('user-list');
+                userListContainer.innerHTML = ''; // Clear previous content
+
+                users.forEach(user => {
+                    console.log(user);
+                    displayUser(user);
+            });
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        function changeTab(tabId) {
+            displayUserByRole(tabId);
+            changeModalContent(tabId);
+
+            // Set the clicked tab as active
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(tabButton => {
+                if (tabButton.dataset.tabId === tabId) {
+                    tabButton.classList.add('active');
+                } else {
+                    tabButton.classList.remove('active');
+                }
+            });
+        }
+
+        // Initial display (admin role)
+        displayUserByRole('admin');
+    </script>
     <script>
     // Get references to the modal and buttons
     var modal = document.getElementById("myModal");
