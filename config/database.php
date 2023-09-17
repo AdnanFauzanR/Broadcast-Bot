@@ -95,8 +95,10 @@ return [
 
         'mongodb' => [
             'driver' => 'mongodb',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', 27017),
             'dsn' => env('DB_URI', 'mongodb+srv://bot-user-db:M25nrDd9jQYfsMs2@clusterbot.xwfjecq.mongodb.net/?retryWrites=true&w=majority'),
-            'database' => 'bot_user_db',
+            'database' => env('DB_DATABASE', 'bot_user_db'),
     ],
 
     ],
