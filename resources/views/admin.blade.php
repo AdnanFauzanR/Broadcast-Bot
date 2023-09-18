@@ -20,9 +20,9 @@
         <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
     </div>
     <div class="role-container">
-        <button class="tab-button active" data-tab-id="admin">Admin</button>
-        <button class="tab-button" data-tab-id="broadcaster">Broadcaster</button>
-        <button class="tab-button" data-tab-id="member">Member</button>
+        <button class="tab-button active" data-tab-id="admin" onclick="changeTab('admin')">Admin</button>
+        <button class="tab-button" data-tab-id="broadcaster" onclick="changeTab('broadcaster')">Broadcaster</button>
+        <button class="tab-button" data-tab-id="member" onclick="changeTab('member')">Member</button>
     </div>
     <div class="button-container">
         <button id="openModalBtn">
@@ -89,38 +89,42 @@
     </div>
     </div>
     <script>
-        async function displayUserByRole(role) {
-            try {
-                const users = await getUsersByRole(role);
-                const userListContainer = document.getElementById('user-list');
-                userListContainer.innerHTML = ''; // Clear previous content
+    let activeTabId = "admin"; // Default active tab is 'admin'
 
-                users.forEach(user => {
-                    console.log(user);
-                    displayUser(user);
+    async function displayUserByRole(role) {
+        try {
+            const users = await getUsersByRole(role);
+            const userListContainer = document.getElementById('user-list');
+            userListContainer.innerHTML = ''; // Clear previous content
+
+            users.forEach(user => {
+                console.log(user);
+                displayUser(user);
+
             });
-            } catch (error) {
-                console.error('Error fetching users:', error);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    }
+
+    function changeTab(tabId) {
+        activeTabId = tabId; // Update active tab
+        displayUserByRole(tabId);
+
+
+        // Set the clicked tab as active
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(tabButton => {
+            if (tabButton.getAttribute('data-tab-id') === tabId) {
+                tabButton.classList.add('active');
+            } else {
+                tabButton.classList.remove('active');
             }
-        }
+        });
 
-        function changeTab(tabId) {
-            displayUserByRole(tabId);
-            changeModalContent(tabId);
+    }
 
-            // Set the clicked tab as active
-            const tabButtons = document.querySelectorAll('.tab-button');
-            tabButtons.forEach(tabButton => {
-                if (tabButton.dataset.tabId === tabId) {
-                    tabButton.classList.add('active');
-                } else {
-                    tabButton.classList.remove('active');
-                }
-            });
-        }
-
-        // Initial display (admin role)
-        displayUserByRole('admin');
+    displayUserByRole(activeTabId);
     </script>
     <script>
     // Get references to the modal and buttons
