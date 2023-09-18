@@ -19,16 +19,15 @@ class AdminAuthMiddleware
     {
         $chat_id = $request->input('chat_id');
 
-        $isAdmin = User::where('chat_id', $chat_id)
-                        ->where('role', 'admin')
-                        ->exists();
+        $user = User::where('chat_id', (float)$chat_id)->first();
 
-        if(!$isAdmin) {
-            return response()->json([
-                'message' => 'You are not authoried to access this page'
-            ], 403);
+        if($user->role === 'admin') {
+            return $next($request);
         }
-        
-        return $next($request);
+
+        return response()->json([
+        'message' => 'You are not authorized to access this page'
+    ], 403);
+
     }
 }
