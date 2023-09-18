@@ -159,17 +159,12 @@ body {
     font-size: 10px;
     color: #747474;
 }
-.edit-delete-container {
+
+.delete-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     width: 45px;
-}
-
-.edit-icon {
-    width: 16px;
-    height: 16px;
-    object-fit: cover;
 }
 
 .delete-icon {
