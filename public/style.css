@@ -134,6 +134,7 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
 }
 
 /* Close Button */
@@ -158,6 +159,19 @@ body {
 .userinfo-username-container {
     font-size: 10px;
     color: #747474;
+}
+
+.user-window-container {
+    display: flex;
+    border-bottom: 0.5px solid #adadad;
+}
+
+.user-list-window-container {
+    display: flex;
+}
+
+.user-list-window-container label {
+    display: flex;
 }
 
 .delete-container {

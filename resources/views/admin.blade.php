@@ -40,25 +40,18 @@
                     Admin Role Management
                 </div>
                 <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
-                <div class="user-list">
+                <div class="user-window-container">
                     <ul class="user-list-checkbox">
-                        <div class="user-container">
-                            <li>
-                                <label for="user1"><input type="checkbox" id="user1" name="users[]" value="User 1"> User
-                                    1</label>
-                            </li>
-                        </div>
-                        <div class="user-container">
-                            <li>
-                                <label for="user2"><input type="checkbox" id="user2" name="users[]" value="User 2"> User
-                                    2</label>
-                            </li>
-                        </div>
-                        <div class="user-container">
-                            <li>
-                                <label for="user3"><input type="checkbox" id="user3" name="users[]" value="User 3"> User
-                                    3</label>
-                            </li>
+                        <div class="user-list-window-container">
+                            <label for="user1"><input type="checkbox" id="user1" name="users[]" value="User 1"> </label>
+                            <div class="userinfo-container">
+                                <div class="userinfo-name-container">
+                                    Fullname
+                                </div>
+                                <div class="userinfo-username-container">
+                                    @username
+                                </div>
+                            </div>
                         </div>
                     </ul>
                 </div>
@@ -257,11 +250,9 @@
                 break;
             default:
                 titleWindowContainer.textContent = 'Role Management';
-                userList.innerHTML = ''; // Clear the user list
+                userList.innerHTML = '';
         }
     }
-
-    // ... Kode event listener lainnya
     </script>
 </body>
 
