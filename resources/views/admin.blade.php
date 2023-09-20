@@ -64,8 +64,7 @@
                 <div class="userinfo-username-container">
                 </div>
             </div>
-            <div class="edit-delete-container">
-                <img src="edit-icon.svg" alt="edit icon" class="edit-icon">
+            <div class="delete-container">
                 <img src="delete-icon.svg" alt="delete icon" class="delete-icon">
             </div>
         </div>
