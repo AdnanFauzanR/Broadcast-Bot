@@ -8,10 +8,8 @@ function deleteUser(userId) {
     });
 }
 
-
 function getUsernames(role) {
-    return fetch(`api/username/${role}`)
-        .then(response => response.json());
+    return fetch(`api/username/${role}`).then((response) => response.json());
 }
 
 function displayUser(user) {
@@ -27,7 +25,7 @@ function displayUser(user) {
 
     const userinfoUsernameContainer = document.createElement("div");
     userinfoUsernameContainer.classList.add("userinfo-username-container");
-    userinfoUsernameContainer.innerText = user.username;
+    userinfoUsernameContainer.innerText = `@${user.username}`;
 
     userinfoContainer.appendChild(userinfoNameContainer);
     userinfoContainer.appendChild(userinfoUsernameContainer);
@@ -61,25 +59,39 @@ function displayUser(user) {
 }
 
 function displayUsername(user) {
-    const userListCheckbox = document.createElement('ul');
-    userListCheckbox.classList.add('user-list-checkbox');
+    const userListCheckbox = document.createElement("ul");
+    userListCheckbox.classList.add("user-list-checkbox");
 
-    const userContainer = document.createElement('div');
-    userContainer.classList.add('user-container');
+    const userWindowContainer = document.createElement("div");
+    userWindowContainer.classList.add("user-list-window-container");
 
-    const username = document.createElement('label');
-    username.classList.add('user');
-    username.innerText = user ? user : '';
+    const username = document.createElement("label");
+    username.classList.add("user");
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
     checkbox.value = user;
+
+    const userInfoContainer = document.createElement("div");
+    userInfoContainer.classList.add("userinfo-container");
+
+    const userInfoNameContainer = document.createElement("div");
+    userInfoNameContainer.classList.add("userinfo-name-container");
+    userInfoNameContainer.innerText = "NAMA PANJANG";
+
+    const userInfoUsernameContainer = document.createElement("div");
+    userInfoUsernameContainer.classList.add("userinfo-username-container");
+    userInfoUsernameContainer.innerText = user ? `@${user}` : "";
 
     username.appendChild(checkbox);
 
-    userContainer.appendChild(username);
-    userListCheckbox.appendChild(userContainer);
+    userWindowContainer.appendChild(username);
+    userWindowContainer.appendChild(userInfoContainer);
+    userListCheckbox.appendChild(userWindowContainer);
+    userInfoContainer.appendChild(userInfoNameContainer);
+    userInfoContainer.appendChild(userInfoUsernameContainer);
 
-    document.getElementById('username-list').appendChild(userListCheckbox);
-
+    document
+        .getElementById("user-window-container")
+        .appendChild(userListCheckbox);
 }

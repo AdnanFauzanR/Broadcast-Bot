@@ -40,16 +40,22 @@
                     Admin Role Management
                 </div>
                 <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
-                <div id="username-list">
+                <div id="user-window-container">
                     <ul class="user-list-checkbox">
-                        <div class="user-container">
-                                <label class="user"for="user1"><input type="checkbox" id="user1" name="users[]" value="User 1">
+                        <div class="user-list-window-container">
+                            <label for="user1"><input type="checkbox" id="" name="" value=""> </label>
+                            <div class="userinfo-container">
+                                <div class="userinfo-name-container">
+                                </div>
+                                <div class="userinfo-username-container">
+                                </div>
+                            </div>
                         </div>
                     </ul>
                 </div>
                 <div class="button-container">
-                    <button id="closeModalBtn">
-                        <img src="add-icon.svg" alt="add icon">
+                    <button id="addNewBtn">
+                        <img src=" add-icon.svg" alt="add icon">
                         <span>Add New</span>
                     </button>
                 </div>
@@ -72,42 +78,24 @@
 
     </div>
     </div>
-    {{-- <script>
-        async function displayUsernameList() {
-            try {
-                const usernames = await getUsernames();
-                const usernameListContainer = document.getElementById('username-list');
-                usernameListContainer.innerHTML = '';
-                const usernameList = usernames.usernames;
-
-                usernameList.forEach(username => {
-                    console.log(username)
-                    displayUsername(username);
-                })
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        }
-
-        displayUsernameList();
-    </script> --}}
     <script>
     let activeTabId = "admin"; // Default active tab is 'admin'
 
     async function displayUsernameList(role) {
-            try {
-                const usernames = await getUsernames(role);
-                const usernameListContainer = document.getElementById('username-list');
-                usernameListContainer.innerHTML = '';
-                const usernameList = usernames.usernames;
+        try {
+            const usernames = await getUsernames(role);
+            const userWindowContainer = document.getElementById('user-window-container');
+            userWindowContainer.innerHTML = '';
+            const usernameList = usernames.usernames;
 
-                usernameList.forEach(username => {
-                    displayUsername(username);
-                })
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
+            usernameList.forEach(username => {
+                displayUsername(username);
+            })
+        } catch (error) {
+            console.error('Error fetching users:', error);
         }
+    }
+
 
     async function displayUserByRole(role) {
         try {
@@ -143,12 +131,14 @@
     }
 
     displayUserByRole(activeTabId);
+    displayUsernameList(activeTabId)
     </script>
     <script>
     // Get references to the modal and buttons
     var modal = document.getElementById("myModal");
     var openBtn = document.getElementById("openModalBtn");
     var closeBtn = document.getElementById("closeModalBtn");
+    var addBtn = document.getElementById("addNewBtn");
     var titleWindowContainer = document.querySelector('.title-window-container'); // Tambahan
 
     // Open the modal when the button is clicked
@@ -160,6 +150,11 @@
     closeBtn.onclick = function() {
         modal.style.display = "none";
     }
+
+    addBtn.addEventListener('click', function() {
+        handleButtonClick();
+        modal.style.display = "none";
+    });
 
     // Close the modal when the user clicks anywhere outside the modal
     window.onclick = function(event) {
@@ -193,6 +188,17 @@
     //         changeModalTitle(tabId);
     //     });
     // });
+    function handleButtonClick() {
+        const checkedCheckboxes = document.querySelectorAll(
+            '.user-list-window-container input[type="checkbox"]:checked');
+        const selectedUsers = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
+        console.log('Selected users:', selectedUsers);
+
+        // You can perform further actions with the selected users here
+
+        // Close the modal (you may want to replace this with your modal closing logic)
+        modal.style.display = "none";
+    }
     </script>
     <script>
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -216,8 +222,7 @@
         });
     });
     </script>
-
-    <script>
+    <!-- <script>
     // ... Kode JavaScript lainnya
 
     // Function to change the title and user list in the modal
@@ -281,7 +286,7 @@
     }
 
     // ... Kode event listener lainnya
-    </script>
+    </script> -->
 </body>
 
 </html>

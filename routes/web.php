@@ -17,6 +17,6 @@ Route::get('/authorized', function () {
     return view('admin');
 })->middleware('admin.auth');
 
-// Route::get('/', function () {
-//     return view('admin');
-// });
+Route::get('/', function () {
+    return view('admin');
+});

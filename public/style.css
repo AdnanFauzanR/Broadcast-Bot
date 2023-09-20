@@ -160,6 +160,16 @@ body {
     color: #747474;
 }
 
+.user-list-window-container {
+    display: flex;
+    margin: 20px 17px 0px 23px;
+    border-bottom: 0.5px solid #adadad;
+}
+
+.user-list-window-container label {
+    display: flex;
+}
+
 .delete-container {
     display: flex;
     align-items: center;
