@@ -9,20 +9,24 @@ use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
 class UserController extends Eloquent
 {
-    public function getAllUsernames() {
+    public function getAllUsernames($role) {
+        $usernames = [];
         try {
             $users = User::all();
-        $usernames = $users->pluck('username')->toArray();
-
+            foreach($users as $user) {
+                if ($user->role !== $role) {
+                    $usernames[] = $user->username;
+                }
+            }
         return response()->json([
             'usernames' => $usernames,
         ], 200);
+
         } catch(Exception $e) {
             return response()->json([
-                'error' => 'An error occured while fetching usernames'
+            'error' => 'Terjadi kesalahan saat mengambil nama pengguna'
             ], 500);
         }
-
     }
 
     public function changeRoles(Request $request) {

@@ -9,8 +9,8 @@ function deleteUser(userId) {
     });
 }
 
-function getUsername() {
-    return fetch(`api/username`)
+function getUsernames(role) {
+    return fetch(`api/username/${role}`)
         .then(response => response.json());
 }
 
@@ -64,5 +64,29 @@ function displayUser(user) {
     userContainer.appendChild(editDeleteContainer);
 
     document.getElementById('user-list').appendChild(userContainer);
+
+}
+
+function displayUsername(user) {
+    const userListCheckbox = document.createElement('ul');
+    userListCheckbox.classList.add('user-list-checkbox');
+
+    const userContainer = document.createElement('div');
+    userContainer.classList.add('user-container');
+
+    const username = document.createElement('label');
+    username.classList.add('user');
+    username.innerText = user ? user : '';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = user;
+
+    username.appendChild(checkbox);
+
+    userContainer.appendChild(username);
+    userListCheckbox.appendChild(userContainer);
+
+    document.getElementById('username-list').appendChild(userListCheckbox);
 
 }

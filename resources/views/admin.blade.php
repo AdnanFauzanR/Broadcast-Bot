@@ -40,25 +40,10 @@
                     Admin Role Management
                 </div>
                 <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
-                <div class="user-list">
+                <div id="username-list">
                     <ul class="user-list-checkbox">
                         <div class="user-container">
-                            <li>
-                                <label for="user1"><input type="checkbox" id="user1" name="users[]" value="User 1"> User
-                                    1</label>
-                            </li>
-                        </div>
-                        <div class="user-container">
-                            <li>
-                                <label for="user2"><input type="checkbox" id="user2" name="users[]" value="User 2"> User
-                                    2</label>
-                            </li>
-                        </div>
-                        <div class="user-container">
-                            <li>
-                                <label for="user3"><input type="checkbox" id="user3" name="users[]" value="User 3"> User
-                                    3</label>
-                            </li>
+                                <label class="user"for="user1"><input type="checkbox" id="user1" name="users[]" value="User 1">
                         </div>
                     </ul>
                 </div>
@@ -88,8 +73,42 @@
 
     </div>
     </div>
+    {{-- <script>
+        async function displayUsernameList() {
+            try {
+                const usernames = await getUsernames();
+                const usernameListContainer = document.getElementById('username-list');
+                usernameListContainer.innerHTML = '';
+                const usernameList = usernames.usernames;
+
+                usernameList.forEach(username => {
+                    console.log(username)
+                    displayUsername(username);
+                })
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        displayUsernameList();
+    </script> --}}
     <script>
     let activeTabId = "admin"; // Default active tab is 'admin'
+
+    async function displayUsernameList(role) {
+            try {
+                const usernames = await getUsernames(role);
+                const usernameListContainer = document.getElementById('username-list');
+                usernameListContainer.innerHTML = '';
+                const usernameList = usernames.usernames;
+
+                usernameList.forEach(username => {
+                    displayUsername(username);
+                })
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
 
     async function displayUserByRole(role) {
         try {
@@ -98,7 +117,6 @@
             userListContainer.innerHTML = ''; // Clear previous content
 
             users.forEach(user => {
-                console.log(user);
                 displayUser(user);
 
             });
@@ -110,6 +128,7 @@
     function changeTab(tabId) {
         activeTabId = tabId; // Update active tab
         displayUserByRole(tabId);
+        displayUsernameList(tabId);
 
 
         // Set the clicked tab as active
