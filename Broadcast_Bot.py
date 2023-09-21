@@ -91,10 +91,19 @@ def continue_registration(message):
 @bot.message_handler(commands=['accessweb'])
 def access_web(message):
     user_id = message.from_user.id
-    markup = types.InlineKeyboardMarkup()
-    web_button = types.InlineKeyboardButton('Access Web', url=f'http://127.0.0.1:8000/authorized?chat_id={user_id}/')
-    markup.add(web_button)
-    bot.send_message(user_id, 'Click the button below to access the web:', reply_markup=markup)
+
+    keyboard = telebot.types.InlineKeyboardMarkup()
+    button = telebot.types.InlineKeyboardButton(
+        text="Open Mini App",
+        web_app = telebot.types.WebAppInfo(url="https://google.com")
+    )
+    keyboard.add(button)
+
+    bot.send_message(
+        message.chat.id,
+        "Click the button to open the Mini App!",
+        reply_markup=keyboard
+    )
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('approve_'))
 def approve_registration(call):
