@@ -28,5 +28,5 @@ Route::get('/test', function(Request $request) {
 
 Route::get('/user/{role}', [UserController::class, 'index']);
 Route::get('/username/{role}', [UserController::class, 'getAllUsernames']);
-Route::post('/changeRoles', [UserController::class, 'changeRoles']);
+Route::post('/changeRole/{role}', [UserController::class, 'changeRoles']);
 Route::delete('/user/{id}', [UserController::class, 'deleteUser']);

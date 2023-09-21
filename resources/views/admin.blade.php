@@ -83,12 +83,11 @@
 
     async function displayUsernameList(role) {
         try {
-            const usernames = await getUsernames(role);
+            const dataUsernames = await getUsernames(role);
             const userWindowContainer = document.getElementById('user-window-container');
             userWindowContainer.innerHTML = '';
-            const usernameList = usernames.usernames;
 
-            usernameList.forEach(username => {
+            dataUsernames.forEach(username => {
                 displayUsername(username);
             })
         } catch (error) {
@@ -152,7 +151,8 @@
     }
 
     addBtn.addEventListener('click', function() {
-        handleButtonClick();
+        const tabId = activeTabId;
+        handleButtonClick(tabId);
         modal.style.display = "none";
     });
 
@@ -188,17 +188,22 @@
     //         changeModalTitle(tabId);
     //     });
     // });
-    function handleButtonClick() {
+    async function handleButtonClick(role) {
         const checkedCheckboxes = document.querySelectorAll(
-            '.user-list-window-container input[type="checkbox"]:checked');
+            '.user-list-window-container input[type="checkbox"]:checked'
+        );
         const selectedUsers = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
-        console.log('Selected users:', selectedUsers);
-
-        // You can perform further actions with the selected users here
-
-        // Close the modal (you may want to replace this with your modal closing logic)
-        modal.style.display = "none";
+        const response = await changeRole(role, selectedUsers)
+            .then(() => {
+                console.log(response);
+                modal.style.display = "none";
+            })
+            .catch(error => {
+                console.error('Error changing role:', error);
+            });
+            window.location.reload();
     }
+        // modal.style.display = "none";
     </script>
     <script>
     const tabButtons = document.querySelectorAll('.tab-button');

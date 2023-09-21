@@ -12,6 +12,28 @@ function getUsernames(role) {
     return fetch(`api/username/${role}`).then((response) => response.json());
 }
 
+async function changeRole(role, users) {
+    try {
+        const response = await fetch(`api/changeRole/${role}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ users: users })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        return responseData;
+    } catch (error) {
+        console.error('Error changing role:', error);
+        throw error;
+    }
+}
+
 function displayUser(user) {
     const userContainer = document.createElement("div");
     userContainer.classList.add("user-container");
@@ -70,18 +92,19 @@ function displayUsername(user) {
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.value = user;
+    checkbox.value = user.id;
 
     const userInfoContainer = document.createElement("div");
     userInfoContainer.classList.add("userinfo-container");
 
     const userInfoNameContainer = document.createElement("div");
     userInfoNameContainer.classList.add("userinfo-name-container");
-    userInfoNameContainer.innerText = "NAMA PANJANG";
+    const name = `${user.first_name} ${user.last_name ? user.last_name : ""}`;
+    userInfoNameContainer.innerText = name;
 
     const userInfoUsernameContainer = document.createElement("div");
     userInfoUsernameContainer.classList.add("userinfo-username-container");
-    userInfoUsernameContainer.innerText = user ? `@${user}` : "";
+    userInfoUsernameContainer.innerText = user.username ? `@${user.username}` : "";
 
     username.appendChild(checkbox);
 

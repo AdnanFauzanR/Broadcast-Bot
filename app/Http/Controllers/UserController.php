@@ -15,12 +15,15 @@ class UserController extends Eloquent
             $users = User::all();
             foreach($users as $user) {
                 if ($user->role !== $role) {
-                    $usernames[] = $user->username;
+                    $usernames[] = [
+                        'id' => $user->_id,
+                        'first_name' => $user->first_name,
+                        'last_name' => $user->last_name,
+                        'username' =>  $user->username
+                    ];
                 }
             }
-        return response()->json([
-            'usernames' => $usernames,
-        ], 200);
+        return response()->json($usernames, 200);
 
         } catch(Exception $e) {
             return response()->json([
@@ -29,23 +32,22 @@ class UserController extends Eloquent
         }
     }
 
-    public function changeRoles(Request $request) {
-        $roleMappings = $request->input('roles');
+    public function changeRoles(Request $request, $role) {
+        $users = $request->input('users');
 
-        if (empty($roleMappings)) {
-            return response()->json(['error' => 'No role mappings provided'], 400);
+        if (empty($users)) {
+            return response()->json(['error' => 'No User Selected'], 400);
         }
 
-        foreach ($roleMappings as $mapping) {
-            $userId = $mapping['user_id'];
-            $newRole = $mapping['new_role'];
+        foreach ($users as $user) {
+            $newRole = $role;
 
             if (!in_array($newRole, ['admin', 'broadcaster', 'member'])) {
                 return response()->json(['error' => 'Invalid Role'], 400);
             }
 
             try {
-                $user = User::find($userId);
+                $user = User::find($user);
 
                 if (!$user) {
                     return response()->json(['error' => 'User not found'], 404);
