@@ -14,7 +14,6 @@ registered_users = db['registered_users']
 registration_requests = db['registration_requests']
 
 # Admin user IDs
-admin_user_ids = {5213085385}
 
 def is_user_admin(user_id):
     user = registered_users.find_one({'chat_id' : user_id})
@@ -22,6 +21,23 @@ def is_user_admin(user_id):
         return user.get('role') == 'admin'
     else:
         return False
+
+def is_user_broadcaster(user_id):
+    user = registered_users.find_one({'chat_id': user_id})
+    if user:
+        return user.get('role') == 'broadcaster'
+    else:
+        return False
+
+def get_admin_users():
+    admin_users = registered_users.find({'role' : 'admin'})
+    if admin_users:
+        admin_chat_ids = [user.get('chat_id') for user in admin_users]
+    else:
+        return 'No admin users'
+    return admin_chat_ids
+
+admin_user_ids = get_admin_users()
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -40,7 +56,7 @@ def start(message):
 registration_steps = {
     'nik': 'Enter your NIK:',
     'jabatan': 'Enter your jabatan:',
-    'witel': 'Enter your Witel:'
+    'witel': 'Enter your Witel:',
 }
 
 @bot.message_handler(commands=['register'])
@@ -92,23 +108,26 @@ def continue_registration(message):
 def access_web(message):
     user_id = message.from_user.id
 
-    keyboard = telebot.types.InlineKeyboardMarkup()
-    button = telebot.types.InlineKeyboardButton(
-        text="Open Mini App",
-        web_app = telebot.types.WebAppInfo(url="https://google.com")
-    )
-    keyboard.add(button)
+    if is_user_admin(user_id):
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        button = telebot.types.InlineKeyboardButton(
+            text="Open Mini App",
+            web_app = telebot.types.WebAppInfo(url="https://google.com")
+        )
+        keyboard.add(button)
 
-    bot.send_message(
-        message.chat.id,
-        "Click the button to open the Mini App!",
-        reply_markup=keyboard
-    )
+        bot.send_message(
+            message.chat.id,
+            "Click the button to open the Mini App!",
+            reply_markup=keyboard
+        )
+    else:
+        bot.send_message(user_id, 'You are not allowed to access web')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('approve_'))
 def approve_registration(call):
     user_id = call.from_user.id
-    if user_id in admin_user_ids:
+    if is_user_admin(user_id):
         request_id = int(call.data.split('_')[1])
         if is_registration_request(request_id):
             approve_user_registration(request_id)
@@ -154,15 +173,16 @@ def is_registration_request(chat_id):
 
 # Define a dictionary to store the user's state
 user_state = {}
+user_states = {}
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     user_id = message.chat.id
     user_message = message.text
 
-    if user_id in user_state:
+    if user_id in user_states:
         # Check if the user is in broadcasting mode
-        if user_state[user_id] == 'broadcast':
+        if user_states[user_id] == 'broadcast':
             chat_ids = registered_users.distinct('chat_id')
             if chat_ids:
                 for selected_registered_users_id in chat_ids:
@@ -174,9 +194,9 @@ def handle_message(message):
                 bot.send_message(user_id, "Broadcast sent to registered users")
 
 
-                for admin_id in admin_user_ids:
-                    if admin_id != user_id:
-                        bot.send_message(admin_id, user_message)
+                # for admin_id in admin_user_ids:
+                #     if admin_id != user_id:
+                #         bot.send_message(admin_id, user_message)
 
             else:
                 bot.send_message(user_id, "There are no registered users in the database.")
@@ -184,14 +204,17 @@ def handle_message(message):
             bot.send_message(user_id, "Invalid command. Please use /broadcast to start broadcasting.")
 
         # Remove the user from the broadcast mode
-        del user_state[user_id]
+        del user_states[user_id]
     else:
         # Check if the message is the "/broadcast" command
         if user_message.startswith('/broadcast'):
-            # Set the user's state to broadcasting
-            user_state[user_id] = 'broadcast'
-            # Prompt the user to enter the message for broadcasting
-            bot.send_message(user_id, "Enter your message for broadcasting: ")
+            if (is_user_admin(user_id)) or (is_user_broadcaster(user_id)):
+                # Set the user's state to broadcasting
+                user_states[user_id] = 'broadcast'
+                # Prompt the user to enter the message for broadcasting
+                bot.send_message(user_id, "Enter your message for broadcasting: ")
+            else:
+                bot.send_message(user_id, 'You are not allowed to send broadcast')
         else:
             bot.send_message(user_id, "Invalid command. Please use /broadcast to start broadcasting.")
 
