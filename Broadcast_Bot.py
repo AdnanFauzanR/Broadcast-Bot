@@ -132,9 +132,10 @@ def approve_registration(call):
         if is_registration_request(request_id):
             approve_user_registration(request_id)
             bot.send_message(request_id, 'Your registration request has been approved')
+            bot.delete_message(call.message.chat.id, call.message.message_id)
             bot.answer_callback_query(call.id, 'Registration request approved')
         else:
-            bot.answer_callback_query(call.id, 'Invalid registration request')
+            bot.answer_callback_query(call.id, 'Already Approved')
     else:
         bot.answer_callback_query(call.id, 'You are not an admin')
 
