@@ -17,9 +17,10 @@ class UserController extends Eloquent
                 if ($user->role !== $role) {
                     $usernames[] = [
                         'id' => $user->_id,
-                        'first_name' => $user->first_name,
-                        'last_name' => $user->last_name,
-                        'username' =>  $user->username
+                        'name' => $user->name,
+                        'username' =>  $user->username,
+                        'jabatan' => $user->jabatan,
+                        'wilayah' => $user->wilayah
                     ];
                 }
             }

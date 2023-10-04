@@ -53,56 +53,162 @@ def start(message):
         bot.send_message(user_id, 'You are not registered. Use /register to request registration')
 
 # Menambahkan langkah-langkah dalam proses registrasi
-registration_steps = {
-    'nik': 'Enter your NIK:',
-    'jabatan': 'Enter your jabatan:',
-    'witel': 'Enter your Witel:',
-}
 
-@bot.message_handler(commands=['register'])
-def register(message):
-    user_id = message.from_user.id
-    username = message.from_user.username
-    first_name = message.from_user.first_name
-    last_name = message.from_user.last_name if message.from_user.last_name else ""
+form_features = ['nama', 'nik', 'jabatan', 'witel', 'wilayah']
 
-    if not is_user_registered(user_id) and not is_registration_pending(user_id):
-        # Mulai proses registrasi dengan mengirim NIK pertama
-        user_state[user_id] = {'step': 'nik', 'data': {}}
-        bot.send_message(user_id, registration_steps['nik'])
+data = {}
+
+registration_step = 0
+
+def register(form, user_id, buttons=None, markup=None):
+    if form == 'nama':
+        bot.send_message(user_id, 'Masukkan nama')
+    elif form == 'nik':
+        bot.send_message(user_id, 'Masukkan NIK')
+    elif form == 'jabatan':
+        if buttons is None:
+            buttons = [
+                types.InlineKeyboardButton('HD  Witel', callback_data=f'jabatan_HD Witel'),
+                types.InlineKeyboardButton('HD ROC', callback_data=f'jabatan_HD ROC')
+            ], [
+                types.InlineKeyboardButton('TL', callback_data=f'jabatan_TL'),
+                types.InlineKeyboardButton('SM', callback_data=f'jabatan_SM')
+            ], [
+                types.InlineKeyboardButton('GM', callback_data=f'jabatan_GM'),
+                types.InlineKeyboardButton('MGR OPS', callback_data=f'jabatan_MGR OPS')
+            ]
+
+        if markup is None:
+            markup = types.InlineKeyboardMarkup(row_width=2)
+            for btn_row in buttons:
+                markup.add(*btn_row)
+
+        bot.send_message(user_id, 'Pilih jabatan Anda', reply_markup=markup)
+    elif form == 'witel':
+        if buttons is None:
+            buttons = [
+                types.InlineKeyboardButton('Witel 1', callback_data=f'witel_Witel 1'),
+                types.InlineKeyboardButton('Witel 2', callback_data=f'witel_Witel 2')
+            ], [
+                types.InlineKeyboardButton('Witel 3', callback_data=f'witel_Witel 3'),
+                types.InlineKeyboardButton('Witel 4', callback_data=f'witel_Witel 4')
+            ], [
+                types.InlineKeyboardButton('Witel 5', callback_data=f'witel_Witel 5'),
+                types.InlineKeyboardButton('Witel 6', callback_data=f'witel_Witel 6')
+            ], [
+                types.InlineKeyboardButton('Witel 7', callback_data=f'witel_Witel 7'),
+                types.InlineKeyboardButton('Witel 8', callback_data=f'witel_Witel 8')
+            ]
+
+        if markup is None:
+            markup = types.InlineKeyboardMarkup(row_width=2)
+            for btn_row in buttons:
+                markup.add(*btn_row)
+
+        bot.send_message(user_id, 'Pilih witel Anda', reply_markup=markup)
+    elif form == 'wilayah':
+        if buttons is None:
+            buttons = [
+                types.InlineKeyboardButton('Wilayah 1', callback_data=f'wilayah_Wilayah 1'),
+                types.InlineKeyboardButton('Wilayah 2', callback_data=f'wilayah_Wilayah 2')
+            ], [
+                types.InlineKeyboardButton('Wilayah 3', callback_data=f'wilayah_Wilayah 3'),
+                types.InlineKeyboardButton('Wilayah 4', callback_data=f'wilayah-Wilayah 4')
+            ], [
+                types.InlineKeyboardButton('Wilayah 5', callback_data=f'wilayah_Wilayah 5'),
+                types.InlineKeyboardButton('Wilayah 6', callback_data=f'wilayah_Wilayah 6')
+            ]
+
+        if markup is None:
+            markup = types.InlineKeyboardMarkup(row_width=2)
+            for btn_row in buttons:
+                markup.add(*btn_row)
+
+        bot.send_message(user_id, 'Pilih wilayah', reply_markup=markup)
     else:
-        bot.send_message(user_id, 'Anda sudah terdaftar atau memiliki permintaan registrasi yang sedang diproses.')
+        bot.send_message(user_id, 'Input form tidak sesuai')
 
-@bot.message_handler(func=lambda message: user_state.get(message.from_user.id) and user_state[message.from_user.id]['step'] in registration_steps)
-def continue_registration(message):
-    user_id = message.from_user.id
-    user_state_data = user_state[user_id]
-    current_step = user_state_data['step']
-    user_message = message.text
 
-    # Simpan data yang diinput oleh pengguna ke dalam state
-    user_state_data['data'][current_step] = user_message
+@bot.callback_query_handler(func=lambda call:call.data.startswith('jabatan_'))
+def button_click(call):
+    user_id = call.message.chat.id
+    jabatan = call.data.split('_')[1]
 
-    # Cek apakah masih ada langkah berikutnya
-    next_step_index = list(registration_steps.keys()).index(current_step) + 1
+    bot.send_message(user_id, f'Anda memilih jabatan: {jabatan}')
+    data['jabatan'] = jabatan
+    global registration_step
+    registration_step += 1
+    register('witel', user_id)
 
-    if next_step_index < len(registration_steps):
-        next_step = list(registration_steps.keys())[next_step_index]
-        user_state_data['step'] = next_step
-        bot.send_message(user_id, registration_steps[next_step])
-    else:
-        # Registrasi selesai, proses data dan tambahkan permintaan registrasi
-        add_registration_request(user_id, message.from_user.username, message.from_user.first_name,
-                                 message.from_user.last_name, user_state_data['data']['nik'],
-                                 user_state_data['data']['jabatan'], user_state_data['data']['witel'])
-        send_registration_request_to_admin(user_id, message.from_user.username,
-                                           message.from_user.first_name, message.from_user.last_name,
-                                           user_state_data['data']['nik'], user_state_data['data']['jabatan'],
-                                           user_state_data['data']['witel'])
-        bot.send_message(user_id, 'Permintaan registrasi Anda telah diajukan untuk persetujuan.')
+@bot.callback_query_handler(func=lambda call:call.data.startswith('witel_'))
+def button_click(call):
+    user_id = call.message.chat.id
+    witel = call.data.split('_')[1]
 
-        # Hapus state registrasi
-        del user_state[user_id]
+    bot.send_message(user_id, f'Anda memilih witel: {witel}')
+    data['witel'] = witel
+    global registration_step
+    registration_step += 1
+    register('wilayah', user_id)
+
+@bot.callback_query_handler(func=lambda call:call.data.startswith('wilayah_'))
+def button_click(call):
+    user_id = call.message.chat.id
+    wilayah = call.data.split('_')[1]
+
+    bot.send_message(user_id, f'Anda memilih wilayah: {wilayah}')
+    data['wilayah'] = wilayah
+    global registration_step
+    registration_step = 0
+    send_registration_request_to_admin(user_id, data)
+    bot.send_message(user_id, 'Permintaan register Anda telah diajukan untuk persetujuan')
+    add_registration_request(user_id, data)
+    del user_states[user_id]
+
+# @bot.message_handler(commands=['register'])
+# def register(message):
+#     user_id = message.from_user.id
+#     username = message.from_user.username
+#     first_name = message.from_user.first_name
+#     last_name = message.from_user.last_name if message.from_user.last_name else ""
+
+#     if not is_user_registered(user_id) and not is_registration_pending(user_id):
+#         # Mulai proses registrasi dengan mengirim NIK pertama
+#         user_state[user_id] = {'step': 'nik', 'data': {}}
+#         bot.send_message(user_id, registration_steps['nik'])
+#     else:
+#         bot.send_message(user_id, 'Anda sudah terdaftar atau memiliki permintaan registrasi yang sedang diproses.')
+
+# @bot.message_handler(func=lambda message: user_state.get(message.from_user.id) and user_state[message.from_user.id]['step'] in registration_steps)
+# def continue_registration(message):
+#     user_id = message.from_user.id
+#     user_state_data = user_state[user_id]
+#     current_step = user_state_data['step']
+#     user_message = message.text
+
+#     # Simpan data yang diinput oleh pengguna ke dalam state
+#     user_state_data['data'][current_step] = user_message
+
+#     # Cek apakah masih ada langkah berikutnya
+#     next_step_index = list(registration_steps.keys()).index(current_step) + 1
+
+#     if next_step_index < len(registration_steps):
+#         next_step = list(registration_steps.keys())[next_step_index]
+#         user_state_data['step'] = next_step
+#         bot.send_message(user_id, registration_steps[next_step])
+#     else:
+#         # Registrasi selesai, proses data dan tambahkan permintaan registrasi
+#         add_registration_request(user_id, message.from_user.username, message.from_user.first_name,
+#                                  message.from_user.last_name, user_state_data['data']['nik'],
+#                                  user_state_data['data']['jabatan'], user_state_data['data']['witel'])
+#         send_registration_request_to_admin(user_id, message.from_user.username,
+#                                            message.from_user.first_name, message.from_user.last_name,
+#                                            user_state_data['data']['nik'], user_state_data['data']['jabatan'],
+#                                            user_state_data['data']['witel'])
+#         bot.send_message(user_id, 'Permintaan registrasi Anda telah diajukan untuk persetujuan.')
+
+#         # Hapus state registrasi
+#         del user_state[user_id]
 
 @bot.message_handler(commands=['accessweb'])
 def access_web(message):
@@ -144,22 +250,34 @@ def is_user_registered(chat_id):
 def is_registration_pending(chat_id):
     return bool(registration_requests.find_one({'chat_id': chat_id}))
 
-def add_registration_request(chat_id, username, first_name, last_name, nik, jabatan, witel):
-    registration_requests.insert_one({'chat_id': chat_id, 'username': username, 'first_name': first_name, 'last_name': last_name, 'nik' : nik, 'jabatan': jabatan, 'witel': witel, 'role': 'member'})
+def add_registration_request(chat_id, data):
+    registration_requests.insert_one(
+        {'chat_id': chat_id,
+         'nama': data['nama'],
+         'username': data['username'],
+         'nik' : data['nik'],
+         'jabatan': data['jabatan'],
+         'witel': data['witel'],
+         'wilayah': data['wilayah'],
+         'role': 'member'
+         })
 
-def send_registration_request_to_admin(user_id, username, first_name, last_name, nik, jabatan, witel):
+    data = {}
+
+def send_registration_request_to_admin(user_id, data):
     for admin_id in admin_user_ids:
         markup = types.InlineKeyboardMarkup()
         approve_button = types.InlineKeyboardButton('Approve', callback_data=f'approve_{user_id}')
         markup.add(approve_button)
         bot.send_message(admin_id,
                          f'A user wants to register with the following information:\n'
-                         f'Username: {username}\n'
-                         f'First Name: {first_name}\n'
-                         f'Last Name: {last_name}\n'
-                         f'NIK      : {nik}\n'
-                         f'Jabatan  : {jabatan}\n'
-                         f'Witel    : {witel}\n'
+                         f'Nama: {data["nama"]}\n'
+                         f'Chat Id: {user_id}\n'
+                         f'Username: {data["username"]}\n'
+                         f'NIK      : {data["nik"]}\n'
+                         f'Jabatan  : {data["jabatan"]}\n'
+                         f'Witel    : {data["witel"]}\n'
+                         f'Wilayah    : {data["wilayah"]}\n'
                          'Do you want to approve?',
                          reply_markup=markup)
 
@@ -174,6 +292,8 @@ def is_registration_request(chat_id):
 # Define a dictionary to store the user's state
 user_state = {}
 user_states = {}
+
+
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
@@ -192,6 +312,7 @@ def handle_message(message):
 
                 # Confirm to the user who initiated the broadcast
                 bot.send_message(user_id, "Broadcast sent to registered users")
+                del user_states[user_id]
 
 
                 # for admin_id in admin_user_ids:
@@ -200,14 +321,57 @@ def handle_message(message):
 
             else:
                 bot.send_message(user_id, "There are no registered users in the database.")
+        elif user_states[user_id] == 'register':
+            global registration_step
+            if form_features[registration_step] == 'nik':
+                try:
+                    user_message = int(user_message)
+                    data[form_features[registration_step]] = user_message
+                    registration_step += 1
+                except ValueError:
+                    bot.send_message(user_id, 'Masukkan nik yang benar')
+            elif form_features[registration_step] == 'jabatan':
+                Jabatan = ['HD WITEL', 'HD ROC', 'TL', 'SM', 'MGR OPS', 'GM']
+                if user_message not in Jabatan:
+                    bot.send_message(user_id, 'Pilih Jabatan yang benar')
+                else:
+                    data[form_features[registration_step]] = user_message
+                    registration_step += 1
+            elif form_features[registration_step] == 'witel':
+                Witel = ['Witel 1', 'Witel 2', 'Witel 3', 'Witel 4', 'Witel 5', 'Witel 6', 'Witel 7', 'Witel 8']
+                if user_message not in Witel:
+                    bot.send_message(user_id, 'Pilih Witel yang benar')
+                else:
+                    data[form_features[registration_step]] = user_message
+                    registration_step += 1
+            elif form_features[registration_step] == 'wilayah':
+                Wilayah = ['Wilayah 1', 'Wilayah 2', 'Wilayah 3', 'Wilayah 4', 'Wilayah 5', 'Wilayah 6']
+                if user_message not in Wilayah:
+                    bot.send_message(user_id, 'Pilih wilayah yang benar')
+                else:
+                    data[form_features[registration_step]] = user_message
+                    registration_step += 1
+            else:
+                data[form_features[registration_step]] = user_message
+                registration_step += 1
+
+            if registration_step < len(form_features):
+                register(form_features[registration_step], user_id)
+                user_states[user_id] = 'register'
+            else:
+                registration_step = 0
+                send_registration_request_to_admin(user_id, data)
+                bot.send_message(user_id, 'Permintaan register Anda telah diajukan untuk persetujuan')
+                add_registration_request(user_id, data)
+                del user_states[user_id]
         else:
             bot.send_message(user_id, "Invalid command. Please use /broadcast to start broadcasting.")
 
         # Remove the user from the broadcast mode
-        del user_states[user_id]
+
     else:
         # Check if the message is the "/broadcast" command
-        if user_message.startswith('/broadcast'):
+        if user_message == '/broadcast':
             if (is_user_admin(user_id)) or (is_user_broadcaster(user_id)):
                 # Set the user's state to broadcasting
                 user_states[user_id] = 'broadcast'
@@ -215,6 +379,11 @@ def handle_message(message):
                 bot.send_message(user_id, "Enter your message for broadcasting: ")
             else:
                 bot.send_message(user_id, 'You are not allowed to send broadcast')
+        elif user_message == '/register':
+            registration_step = 0
+            user_states[user_id] = 'register'
+            data['username'] = message.from_user.username
+            register('nama', user_id)
         else:
             bot.send_message(user_id, "Invalid command. Please use /broadcast to start broadcasting.")
 
