@@ -6,8 +6,8 @@ from telebot import types
 bot = telebot.TeleBot('6405987197:AAGxNvapAVDc-ny_rcrmri586Wau1NamR1A')
 
 # Initialize the MongoDB client and database
-mongo_client = pymongo.MongoClient('mongodb+srv://bot-user-db:M25nrDd9jQYfsMs2@clusterbot.xwfjecq.mongodb.net/?retryWrites=true&w=majority')
-db = mongo_client['bot_user_db']
+mongo_client = pymongo.MongoClient('mongodb+srv://telkomroc7:1hzi8GmOaVcm5YtA@cluster0.rjupjti.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp')
+db = mongo_client['telkomroc7']
 
 # Create collections for registered users and registration requests
 registered_users = db['registered_users']
@@ -54,7 +54,7 @@ def start(message):
 
 # Menambahkan langkah-langkah dalam proses registrasi
 
-form_features = ['nama', 'nik', 'jabatan', 'witel', 'wilayah']
+form_features = ['nama', 'nik', 'jabatan', 'witel']
 
 data = {}
 
@@ -87,17 +87,20 @@ def register(form, user_id, buttons=None, markup=None):
     elif form == 'witel':
         if buttons is None:
             buttons = [
-                types.InlineKeyboardButton('Witel 1', callback_data=f'witel_Witel 1'),
-                types.InlineKeyboardButton('Witel 2', callback_data=f'witel_Witel 2')
+                types.InlineKeyboardButton('ROC 7', callback_data=f'witel_ROC 7'),
+                types.InlineKeyboardButton('SULSEL', callback_data=f'witel_SULSEL')
             ], [
-                types.InlineKeyboardButton('Witel 3', callback_data=f'witel_Witel 3'),
-                types.InlineKeyboardButton('Witel 4', callback_data=f'witel_Witel 4')
+                types.InlineKeyboardButton('SULSELBAR', callback_data=f'witel_SULSELBAR'),
+                types.InlineKeyboardButton('SULTRA', callback_data=f'witel_SULTRA')
             ], [
-                types.InlineKeyboardButton('Witel 5', callback_data=f'witel_Witel 5'),
-                types.InlineKeyboardButton('Witel 6', callback_data=f'witel_Witel 6')
+                types.InlineKeyboardButton('SULTENG', callback_data=f'witel_SULTENG'),
+                types.InlineKeyboardButton('SULUT', callback_data=f'witel_SULUT')
             ], [
-                types.InlineKeyboardButton('Witel 7', callback_data=f'witel_Witel 7'),
-                types.InlineKeyboardButton('Witel 8', callback_data=f'witel_Witel 8')
+                types.InlineKeyboardButton('GORONTALO', callback_data=f'witel_GORONTALO'),
+                types.InlineKeyboardButton('MALUKU', callback_data=f'witel_MALUKU')
+            ], [
+                types.InlineKeyboardButton('PAPUA', callback_data=f'witel_PAPUA'),
+                types.InlineKeyboardButton('PAPUA BARAT', callback_data=f'witel_PAPUA BARAT')
             ]
 
         if markup is None:
@@ -106,25 +109,32 @@ def register(form, user_id, buttons=None, markup=None):
                 markup.add(*btn_row)
 
         bot.send_message(user_id, 'Pilih witel Anda', reply_markup=markup)
-    elif form == 'wilayah':
-        if buttons is None:
-            buttons = [
-                types.InlineKeyboardButton('Wilayah 1', callback_data=f'wilayah_Wilayah 1'),
-                types.InlineKeyboardButton('Wilayah 2', callback_data=f'wilayah_Wilayah 2')
-            ], [
-                types.InlineKeyboardButton('Wilayah 3', callback_data=f'wilayah_Wilayah 3'),
-                types.InlineKeyboardButton('Wilayah 4', callback_data=f'wilayah-Wilayah 4')
-            ], [
-                types.InlineKeyboardButton('Wilayah 5', callback_data=f'wilayah_Wilayah 5'),
-                types.InlineKeyboardButton('Wilayah 6', callback_data=f'wilayah_Wilayah 6')
-            ]
+    else:
+        bot.send_message(user_id, 'Input form tidak sesuai')
 
-        if markup is None:
-            markup = types.InlineKeyboardMarkup(row_width=2)
-            for btn_row in buttons:
-                markup.add(*btn_row)
+def choose_witel_for_broadcast(user_id, buttons=None, markup=None):
+    buttons = [
+            types.InlineKeyboardButton('ROC 7', callback_data=f'choose_ROC 7'),
+            types.InlineKeyboardButton('SULSEL', callback_data=f'choose_SULSEL')
+        ], [
+            types.InlineKeyboardButton('SULSELBAR', callback_data=f'choose_SULSELBAR'),
+            types.InlineKeyboardButton('SULTRA', callback_data=f'choose_SULTRA')
+        ], [
+            types.InlineKeyboardButton('SULTENG', callback_data=f'choose_SULTENG'),
+            types.InlineKeyboardButton('SULUT', callback_data=f'choose_SULUT')
+        ], [
+            types.InlineKeyboardButton('GORONTALO', callback_data=f'choose_GORONTALO'),
+            types.InlineKeyboardButton('MALUKU', callback_data=f'choose_MALUKU')
+        ], [
+            types.InlineKeyboardButton('PAPUA', callback_data=f'choose_PAPUA'),
+            types.InlineKeyboardButton('PAPUA BARAT', callback_data=f'choose_PAPUA BARAT')
+        ]
+    if markup is None:
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        for btn_row in buttons:
+            markup.add(*btn_row)
 
-        bot.send_message(user_id, 'Pilih wilayah', reply_markup=markup)
+        bot.send_message(user_id, 'Pilih witel untuk di-broadcast', reply_markup=markup)
     else:
         bot.send_message(user_id, 'Input form tidak sesuai')
 
@@ -148,22 +158,19 @@ def button_click(call):
     bot.send_message(user_id, f'Anda memilih witel: {witel}')
     data['witel'] = witel
     global registration_step
-    registration_step += 1
-    register('wilayah', user_id)
-
-@bot.callback_query_handler(func=lambda call:call.data.startswith('wilayah_'))
-def button_click(call):
-    user_id = call.message.chat.id
-    wilayah = call.data.split('_')[1]
-
-    bot.send_message(user_id, f'Anda memilih wilayah: {wilayah}')
-    data['wilayah'] = wilayah
-    global registration_step
     registration_step = 0
     send_registration_request_to_admin(user_id, data)
     bot.send_message(user_id, 'Permintaan register Anda telah diajukan untuk persetujuan')
     add_registration_request(user_id, data)
     del user_states[user_id]
+
+@bot.callback_query_handler(func=lambda call:call.data.startswith('choose_'))
+def button_click(call):
+    user_id = call.message.chat.id
+    global chosen_witel
+    chosen_witel = call.data.split('_')[1]
+
+    bot.send_message(user_id, f'Anda memilih broadcast ke witel *{chosen_witel}*, Masukkan pesan Anda:', parse_mode= 'Markdown')
 
 # @bot.message_handler(commands=['register'])
 # def register(message):
@@ -259,7 +266,6 @@ def add_registration_request(chat_id, data):
          'nik' : data['nik'],
          'jabatan': data['jabatan'],
          'witel': data['witel'],
-         'wilayah': data['wilayah'],
          'role': 'member'
          })
 
@@ -278,7 +284,6 @@ def send_registration_request_to_admin(user_id, data):
                          f'NIK      : {data["nik"]}\n'
                          f'Jabatan  : {data["jabatan"]}\n'
                          f'Witel    : {data["witel"]}\n'
-                         f'Wilayah    : {data["wilayah"]}\n'
                          'Do you want to approve?',
                          reply_markup=markup)
 
@@ -300,6 +305,7 @@ user_states = {}
 def handle_message(message):
     user_id = message.chat.id
     user_message = message.text
+    global chosen_witel
 
     if user_id in user_states:
         # Check if the user is in broadcasting mode
@@ -313,15 +319,51 @@ def handle_message(message):
 
                 # Confirm to the user who initiated the broadcast
                 bot.send_message(user_id, "Broadcast sent to registered users")
-                del user_states[user_id]
-
-
-                # for admin_id in admin_user_ids:
-                #     if admin_id != user_id:
-                #         bot.send_message(admin_id, user_message)
-
             else:
                 bot.send_message(user_id, "There are no registered users in the database.")
+            del user_states[user_id]
+        elif user_states[user_id] == 'broadcast6':
+            chat_ids = registered_users.distinct('chat_id',{'jabatan':{'$in':['HD Witel', 'HD ROC','TL']}, 'witel': chosen_witel})
+            if chat_ids:
+                for selected_registered_users_id in chat_ids:
+                    # Send the broadcast message to each selected contact
+                    if selected_registered_users_id  != user_id:
+                        bot.send_message(selected_registered_users_id, user_message)
+
+                # Confirm to the user who initiated the broadcast
+                bot.send_message(user_id, "Broadcast sent to registered users")
+                chosen_witel= {}
+            else:
+                bot.send_message(user_id, "There are no registered users in the database.")
+            del user_states[user_id]
+        elif user_states[user_id] == 'broadcast12':
+            chat_ids = registered_users.distinct('chat_id',{'jabatan':{'$in':['SM']}, 'witel': chosen_witel})
+            if chat_ids:
+                for selected_registered_users_id in chat_ids:
+                    # Send the broadcast message to each selected contact
+                    if selected_registered_users_id  != user_id:
+                        bot.send_message(selected_registered_users_id, user_message)
+
+                # Confirm to the user who initiated the broadcast
+                bot.send_message(user_id, "Broadcast sent to registered users")
+                chosen_witel= {}
+            else:
+                bot.send_message(user_id, "There are no registered users in the database.")
+            del user_states[user_id]
+        elif user_states[user_id] == 'broadcast36':
+            chat_ids = registered_users.distinct('chat_id',{'jabatan':{'$in':['MGR OPS', 'GM']},'witel': chosen_witel})
+            if chat_ids:
+                for selected_registered_users_id in chat_ids:
+                    # Send the broadcast message to each selected contact
+                    if selected_registered_users_id  != user_id:
+                        bot.send_message(selected_registered_users_id, user_message)
+
+                # Confirm to the user who initiated the broadcast
+                bot.send_message(user_id, "Broadcast sent to registered users")
+                chosen_witel= {}
+            else:
+                bot.send_message(user_id, "There are no registered users in the database.")
+            del user_states[user_id]
         elif user_states[user_id] == 'register':
             global registration_step
             if form_features[registration_step] == 'nik':
@@ -339,16 +381,9 @@ def handle_message(message):
                     data[form_features[registration_step]] = user_message
                     registration_step += 1
             elif form_features[registration_step] == 'witel':
-                Witel = ['Witel 1', 'Witel 2', 'Witel 3', 'Witel 4', 'Witel 5', 'Witel 6', 'Witel 7', 'Witel 8']
+                Witel = ['ROC 7', 'SULSEL', 'SULSELBAR', 'SULTRA', 'SULTENG', 'SULUT', 'GORONTALO', 'MALUKU', 'PAPUA', 'PAPUA BARAT']
                 if user_message not in Witel:
                     bot.send_message(user_id, 'Pilih Witel yang benar')
-                else:
-                    data[form_features[registration_step]] = user_message
-                    registration_step += 1
-            elif form_features[registration_step] == 'wilayah':
-                Wilayah = ['Wilayah 1', 'Wilayah 2', 'Wilayah 3', 'Wilayah 4', 'Wilayah 5', 'Wilayah 6']
-                if user_message not in Wilayah:
-                    bot.send_message(user_id, 'Pilih wilayah yang benar')
                 else:
                     data[form_features[registration_step]] = user_message
                     registration_step += 1
@@ -378,6 +413,27 @@ def handle_message(message):
                 user_states[user_id] = 'broadcast'
                 # Prompt the user to enter the message for broadcasting
                 bot.send_message(user_id, "Enter your message for broadcasting: ")
+            else:
+                bot.send_message(user_id, 'You are not allowed to send broadcast')
+        elif user_message == '/broadcast6':
+            if (is_user_admin(user_id)) or (is_user_broadcaster(user_id)):
+                # Set the user's state to broadcasting
+                user_states[user_id] = 'broadcast6'
+                choose_witel_for_broadcast(user_id)
+            else:
+                bot.send_message(user_id, 'You are not allowed to send broadcast')
+        elif user_message == '/broadcast12':
+            if (is_user_admin(user_id)) or (is_user_broadcaster(user_id)):
+                # Set the user's state to broadcasting
+                user_states[user_id] = 'broadcast12'
+                choose_witel_for_broadcast(user_id)
+            else:
+                bot.send_message(user_id, 'You are not allowed to send broadcast')
+        elif user_message == '/broadcast36':
+            if (is_user_admin(user_id)) or (is_user_broadcaster(user_id)):
+                # Set the user's state to broadcasting
+                user_states[user_id] = 'broadcast36'
+                choose_witel_for_broadcast(user_id)
             else:
                 bot.send_message(user_id, 'You are not allowed to send broadcast')
         elif user_message == '/register':
