@@ -97,9 +97,9 @@ return [
             'driver' => 'mongodb',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', 27017),
-            'dsn' => env('DB_URI', 'mongodb+srv://bot-user-db:M25nrDd9jQYfsMs2@clusterbot.xwfjecq.mongodb.net/?retryWrites=true&w=majority'),
-            'database' => env('DB_DATABASE', 'bot_user_db'),
-    ],
+            'dsn' => env('DB_URI', 'mongodb+srv://telkomroc7:1hzi8GmOaVcm5YtA@cluster0.rjupjti.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp'),
+            'database' => env('DB_DATABASE', 'telkomroc7'),
+        ],
 
     ],
 
@@ -133,7 +133,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

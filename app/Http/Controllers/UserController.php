@@ -9,31 +9,33 @@ use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
 class UserController extends Eloquent
 {
-    public function getAllUsernames($role) {
+    public function getAllUsernames($role)
+    {
         $usernames = [];
         try {
             $users = User::all();
-            foreach($users as $user) {
+            foreach ($users as $user) {
                 if ($user->role !== $role) {
                     $usernames[] = [
                         'id' => $user->_id,
-                        'name' => $user->name,
-                        'username' =>  $user->username,
+                        'nama' => $user->nama,
+                        'username' => $user->username,
                         'jabatan' => $user->jabatan,
                         'wilayah' => $user->wilayah
                     ];
                 }
             }
-        return response()->json($usernames, 200);
+            return response()->json($usernames, 200);
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-            'error' => 'Terjadi kesalahan saat mengambil nama pengguna'
+                'error' => 'Terjadi kesalahan saat mengambil nama pengguna'
             ], 500);
         }
     }
 
-    public function changeRoles(Request $request, $role) {
+    public function changeRoles(Request $request, $role)
+    {
         $users = $request->input('users');
 
         if (empty($users)) {
@@ -69,7 +71,8 @@ class UserController extends Eloquent
     }
 
 
-    public function index($role) {
+    public function index($role)
+    {
         if (!in_array($role, ['admin', 'broadcaster', 'member'])) {
             return response()->json([
                 'error' => 'Invalid role'
@@ -86,11 +89,12 @@ class UserController extends Eloquent
         }
     }
 
-    public function deleteUser($id) {
+    public function deleteUser($id)
+    {
         try {
             $user = User::find($id);
 
-            if(!$user) {
+            if (!$user) {
                 return response()->json([
                     'error' => 'User not found'
                 ], 404);
@@ -101,7 +105,7 @@ class UserController extends Eloquent
             return response()->json([
                 'message' => 'User deleted successfully'
             ], 200);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'An error occured while deleting the user'
             ], 500);

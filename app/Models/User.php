@@ -10,7 +10,13 @@ class User extends Eloquent
     protected $collection = 'registered_users';
 
     protected $fillable = [
-        '_id', 'name', 'username', 'role', 'chat_id', 'nik', 'jabatan', 'witel', 'wilayah'
+        '_id',
+        'nama',
+        'username',
+        'role',
+        'chat_id',
+        'nik',
+        'jabatan',
+        'witel',
     ];
 }
-

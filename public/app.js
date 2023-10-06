@@ -17,9 +17,9 @@ async function changeRole(role, users) {
         const response = await fetch(`api/changeRole/${role}`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ users: users })
+            body: JSON.stringify({ users: users }),
         });
 
         if (!response.ok) {
@@ -29,7 +29,7 @@ async function changeRole(role, users) {
         const responseData = await response.json();
         return responseData;
     } catch (error) {
-        console.error('Error changing role:', error);
+        console.error("Error changing role:", error);
         throw error;
     }
 }
@@ -43,11 +43,11 @@ function displayUser(user) {
 
     const userinfoNameContainer = document.createElement("div");
     userinfoNameContainer.classList.add("userinfo-name-container");
-    userinfoNameContainer.innerText = `${user.first_name} ${user.last_name}`;
+    userinfoNameContainer.innerText = `${user.nama}`;
 
     const userinfoUsernameContainer = document.createElement("div");
     userinfoUsernameContainer.classList.add("userinfo-username-container");
-    userinfoUsernameContainer.innerText = `@${user.username}`;
+    userinfoUsernameContainer.innerText = `${user.jabatan} | ${user.witel}`;
 
     userinfoContainer.appendChild(userinfoNameContainer);
     userinfoContainer.appendChild(userinfoUsernameContainer);
@@ -99,12 +99,12 @@ function displayUsername(user) {
 
     const userInfoNameContainer = document.createElement("div");
     userInfoNameContainer.classList.add("userinfo-name-container");
-    const name = `${user.first_name} ${user.last_name ? user.last_name : ""}`;
+    const name = `${user.nama}`;
     userInfoNameContainer.innerText = name;
 
     const userInfoUsernameContainer = document.createElement("div");
     userInfoUsernameContainer.classList.add("userinfo-username-container");
-    userInfoUsernameContainer.innerText = user.username ? `@${user.username}` : "";
+    userInfoUsernameContainer.innerText = `${user.jabatan} | ${user.witel}`;
 
     username.appendChild(checkbox);
 
