@@ -12,12 +12,15 @@
 
 <body>
     <div class="header-container">
-        <img src="logo-telkom.svg" alt="logo telkom">
-        <span>Admin Telkom</span>
+        <div class="image-container">
+            <img src="logo-telkom.svg" alt="logo telkom">
+        </div>
+        <span>Admin Dashboard</span>
     </div>
     <div class="title-container">
         Role Management
-        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+        <p>Selamat datang di sistem pengelolaan Role. Silahkan mengatur manajemen akses untuk masing-masing peran agar
+            sesuai dengan pekerjaan</p>
     </div>
     <div class="role-container">
         <button class="tab-button active" data-tab-id="admin" onclick="changeTab('admin')">Admin</button>
@@ -39,7 +42,9 @@
                 <div class="title-window-container">
                     Admin Role Management
                 </div>
-                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+                <div class="p-window-container">
+                    Pilih user yang ingin dijadikan sebagai admin
+                </div>
                 <div id="user-window-container">
                     <ul class="user-list-checkbox">
                         <div class="user-list-window-container">
@@ -139,6 +144,7 @@
     var closeBtn = document.getElementById("closeModalBtn");
     var addBtn = document.getElementById("addNewBtn");
     var titleWindowContainer = document.querySelector('.title-window-container'); // Tambahan
+    var pWindowContainer = document.querySelector('.p-window-container')
 
     // Open the modal when the button is clicked
     openBtn.onclick = function() {
@@ -168,12 +174,15 @@
         switch (tabId) {
             case 'admin':
                 titleWindowContainer.textContent = 'Admin Role Management';
+                pWindowContainer.textContent = 'Pilih user yang ingin dijadikan sebagai admin';
                 break;
             case 'broadcaster':
                 titleWindowContainer.textContent = 'Broadcaster Role Management';
+                pWindowContainer.textContent = 'Pilih user yang ingin dijadikan sebagai broadcaster';
                 break;
             case 'member':
                 titleWindowContainer.textContent = 'Member Role Management';
+                pWindowContainer.textContent = 'Pilih user yang ingin dijadikan sebagai member';
                 break;
             default:
                 titleWindowContainer.textContent = 'Role Management';
@@ -201,9 +210,9 @@
             .catch(error => {
                 console.error('Error changing role:', error);
             });
-            window.location.reload();
+        window.location.reload();
     }
-        // modal.style.display = "none";
+    // modal.style.display = "none";
     </script>
     <script>
     const tabButtons = document.querySelectorAll('.tab-button');
