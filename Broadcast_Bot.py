@@ -59,25 +59,25 @@ def start(message):
     user_id = message.from_user.id
     if is_user_registered(user_id):
         if is_user_admin(user_id):
-            bot.send_message(user_id, 
-                             "======================\n Broadcast Bot | ROC7\n======================\n\n" 
-                             + 'Welcome Admin, Saya siap membantu Anda.\n\n' 
+            bot.send_message(user_id,
+                             "======================\n Broadcast Bot | ROC7\n======================\n\n"
+                             + 'Welcome Admin, Saya siap membantu Anda.\n\n'
                              + template_message)
         elif is_user_broadcaster(user_id):
-            bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n" 
-                             + 'Welcome Admin, Saya siap membantu Anda.\n\n' 
+            bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n"
+                             + 'Welcome Admin, Saya siap membantu Anda.\n\n'
                              + template_message)
         else:
-            bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n" 
-                             + 'Welcome to the bot!\n\n' 
+            bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n"
+                             + 'Welcome to the bot!\n\n'
                              + template_message)
     elif is_registration_pending(user_id):
-        bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n" 
-                             + 'Welcome to the bot! Registrasi anda pending, harap menghubungi admin untuk menerima registrasi anda\n\n' 
+        bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n"
+                             + 'Welcome to the bot! Registrasi anda pending, harap menghubungi admin untuk menerima registrasi anda\n\n'
                              + template_message)
     else:
-        bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n" 
-                             + 'Welcome to the bot, anda belum terdaftar. Silahkan menggunakan /register untuk mendaftar!\n\n' 
+        bot.send_message(user_id, "======================\n Broadcast Bot | ROC7\n======================\n\n"
+                             + 'Welcome to the bot, anda belum terdaftar. Silahkan menggunakan /register untuk mendaftar!\n\n'
                              + template_message)
 
 # Menambahkan langkah-langkah dalam proses registrasi
@@ -256,7 +256,15 @@ def reject_registration(call):
             bot.answer_callback_query(call.id, 'Already Approved or Rejected')
     else:
         bot.answer_callback_query(call.id, 'You are not an admin')
-        
+
+broadcast_id = 0
+@bot.callback_query_handler(func=lambda call: call.data.startswith('response_'))
+def response_broadcast_message(call):
+    user_id = call.from_user.id
+    global broadcast_id
+    broadcast_id = int(call.data.split('_')[1])
+    bot.send_message(user_id, 'Kirim pesan respons Anda')
+    user_states[user_id] = 'response'
 
 def add_registration_request(chat_id, data):
     registration_requests.insert_one(
@@ -278,7 +286,7 @@ def send_registration_request_to_admin(user_id, data):
             types.InlineKeyboardButton('Approve', callback_data=f'approve_{user_id}'),
             types.InlineKeyboardButton('Reject', callback_data=f'reject_{user_id}')
             ]
-            
+
         markup.add(*button)
         bot.send_message(admin_id, template_message +
                          f'\nA user wants to register with the following information:\n'
@@ -312,17 +320,21 @@ def handle_message(message):
     user_message = message.text
     global chosen_witel
     message_error_bc = 'Anda tidak dapat mengirim broadcast'
+    markup = types.InlineKeyboardMarkup()
+    response_button = types.InlineKeyboardButton('Response', callback_data=f'response_{user_id}')
+    markup.add(response_button)
 
     if user_id in user_states:
         # Check if the user is in broadcasting mode
         if user_states[user_id] == 'broadcast':
+
             chat_ids = registered_users.distinct('chat_id')
             if chat_ids:
                 for selected_registered_users_id in chat_ids:
                     # Send the broadcast message to each selected contact
                     if selected_registered_users_id  != user_id:
-                        bot.send_message(selected_registered_users_id, user_message)
 
+                        bot.send_message(selected_registered_users_id, user_message, reply_markup=markup)
                 # Confirm to the user who initiated the broadcast
                 bot.send_message(user_id, "Broadcast sent to registered users")
             else:
@@ -334,7 +346,7 @@ def handle_message(message):
                 for selected_registered_users_id in chat_ids:
                     # Send the broadcast message to each selected contact
                     if selected_registered_users_id  != user_id:
-                        bot.send_message(selected_registered_users_id, user_message)
+                        bot.send_message(selected_registered_users_id, user_message, reply_markup=markup)
 
                 # Confirm to the user who initiated the broadcast
                 bot.send_message(user_id, "Broadcast sent to registered users")
@@ -348,7 +360,7 @@ def handle_message(message):
                 for selected_registered_users_id in chat_ids:
                     # Send the broadcast message to each selected contact
                     if selected_registered_users_id  != user_id:
-                        bot.send_message(selected_registered_users_id, user_message)
+                        bot.send_message(selected_registered_users_id, user_message, reply_markup=markup)
 
                 # Confirm to the user who initiated the broadcast
                 bot.send_message(user_id, "Broadcast sent to registered users")
@@ -362,13 +374,20 @@ def handle_message(message):
                 for selected_registered_users_id in chat_ids:
                     # Send the broadcast message to each selected contact
                     if selected_registered_users_id  != user_id:
-                        bot.send_message(selected_registered_users_id, user_message)
+                        bot.send_message(selected_registered_users_id, user_message, reply_markup=markup)
 
                 # Confirm to the user who initiated the broadcast
                 bot.send_message(user_id, "Broadcast sent to registered users")
                 chosen_witel= {}
             else:
                 bot.send_message(user_id, "There are no registered users in the database.")
+            del user_states[user_id]
+        elif user_states[user_id] == 'response':
+            global broadcast_id
+            data = registered_users.find_one({'chat_id': user_id})
+            bot.send_message(broadcast_id, f'From {data["nama"]}: {user_message}')
+            bot.send_message(user_id, 'Response sent to broadcaster')
+            broadcast_id = 0
             del user_states[user_id]
         elif user_states[user_id] == 'register':
             global registration_step
