@@ -21,7 +21,7 @@ class UserController extends Eloquent
                         'nama' => $user->nama,
                         'username' => $user->username,
                         'jabatan' => $user->jabatan,
-                        'wilayah' => $user->wilayah
+                        'witel' => $user->witel
                     ];
                 }
             }

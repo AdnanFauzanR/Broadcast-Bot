@@ -162,14 +162,14 @@
         modal.style.display = "none";
     });
 
-    // Close the modal when the user clicks anywhere outside the modal
+    // Close the modal
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
     }
 
-    // Function to change the title in the modal
+    // change the title in the modal
     function changeModalTitle(tabId) {
         switch (tabId) {
             case 'admin':
