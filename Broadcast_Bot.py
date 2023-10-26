@@ -175,10 +175,20 @@ def button_click(call):
     jabatan = call.data.split('_')[1]
 
     # bot.send_message(user_id, f'Anda memilih jabatan: {jabatan}')
-    data['jabatan'] = jabatan
     global registration_step
-    registration_step += 1
-    register('witel', user_id)
+    if jabatan == 'HD ROC':
+        data['jabatan'] = jabatan
+        data['witel'] = 'ROC 7'
+        data['role'] = 'broadcaster'
+        registration_step = 0
+        send_registration_request_to_admin(user_id, data)
+        bot.send_message(user_id, 'Permintaan register Anda telah diajukan untuk persetujuan')
+        add_registration_request(user_id, data)
+        del user_states[user_id]
+    else:
+        data['jabatan'] = jabatan
+        registration_step += 1
+        register('witel', user_id)
 
 @bot.callback_query_handler(func=lambda call:call.data.startswith('witel_'))
 def button_click(call):
@@ -187,6 +197,7 @@ def button_click(call):
 
     # bot.send_message(user_id, f'Anda memilih witel: {witel}')
     data['witel'] = witel
+    data['role'] = 'member'
     global registration_step
     registration_step = 0
     send_registration_request_to_admin(user_id, data)
@@ -208,18 +219,11 @@ def access_web(message):
     user_id = message.from_user.id
 
     if is_user_admin(user_id):
-        keyboard = telebot.types.InlineKeyboardMarkup()
-        button = telebot.types.InlineKeyboardButton(
-            text="Open Mini App",
-            web_app = telebot.types.WebAppInfo(url="https://google.com")
-        )
-        keyboard.add(button)
+        markup = types.InlineKeyboardMarkup()
+        web_button = types.InlineKeyboardButton('Access Web', url=f'http://127.0.0.1:8000/authorized?chat_id={user_id}/')
+        markup.add(web_button)
+        bot.send_message(user_id, 'Click the button below to access the web:', reply_markup=markup)
 
-        bot.send_message(
-            message.chat.id,
-            "Click the button to open the Mini App!",
-            reply_markup=keyboard
-        )
     else:
         bot.send_message(user_id, 'You are not allowed to access web')
 
@@ -237,6 +241,7 @@ def approve_registration(call):
             bot.answer_callback_query(call.id, 'Already Approved')
     else:
         bot.answer_callback_query(call.id, 'You are not an admin')
+        
 
 def add_registration_request(chat_id, data):
     registration_requests.insert_one(
@@ -246,7 +251,7 @@ def add_registration_request(chat_id, data):
          'nik' : data['nik'],
          'jabatan': data['jabatan'],
          'witel': data['witel'],
-         'role': 'member'
+         'role': data['role']
          })
 
     data = {}
@@ -428,4 +433,5 @@ def handle_message(message):
 
 
 # Start polling
-bot.polling()
+if __name__ == "__main__":
+    bot.polling(none_stop=True)
