@@ -241,6 +241,21 @@ def approve_registration(call):
             bot.answer_callback_query(call.id, 'Already Approved')
     else:
         bot.answer_callback_query(call.id, 'You are not an admin')
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('reject_'))
+def reject_registration(call):
+    user_id = call.from_user.id
+    if is_user_admin(user_id):
+        request_id = int(call.data.split('_')[1])
+        if is_registration_request(request_id):
+            registration_requests.find_one_and_delete({'chat_id': request_id})
+            bot.send_message(request_id, template_message+'\n\nPermintaan registrasi Anda telah ditolak\n\n' + template_message)
+            bot.delete_message(call.message.chat.id, call.message.message_id)
+            bot.answer_callback_query(call.id, 'Registration request rejected')
+        else:
+            bot.answer_callback_query(call.id, 'Already Approved or Rejected')
+    else:
+        bot.answer_callback_query(call.id, 'You are not an admin')
         
 
 def add_registration_request(chat_id, data):
@@ -258,9 +273,13 @@ def add_registration_request(chat_id, data):
 
 def send_registration_request_to_admin(user_id, data):
     for admin_id in admin_user_ids:
-        markup = types.InlineKeyboardMarkup()
-        approve_button = types.InlineKeyboardButton('Approve', callback_data=f'approve_{user_id}')
-        markup.add(approve_button)
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        button = [
+            types.InlineKeyboardButton('Approve', callback_data=f'approve_{user_id}'),
+            types.InlineKeyboardButton('Reject', callback_data=f'reject_{user_id}')
+            ]
+            
+        markup.add(*button)
         bot.send_message(admin_id, template_message +
                          f'\nA user wants to register with the following information:\n'
                          f'Nama: {data["nama"]}\n'
@@ -277,6 +296,7 @@ def approve_user_registration(chat_id):
     user_data = registration_requests.find_one_and_delete({'chat_id': chat_id})
     if user_data:
         registered_users.insert_one(user_data)
+
 
 def is_registration_request(chat_id):
     return bool(registration_requests.find_one({'chat_id': chat_id}))
