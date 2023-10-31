@@ -257,12 +257,16 @@ def reject_registration(call):
     else:
         bot.answer_callback_query(call.id, 'You are not an admin')
 
+broadcaster_id = 0
 broadcast_id = 0
+
 @bot.callback_query_handler(func=lambda call: call.data.startswith('response_'))
 def response_broadcast_message(call):
     user_id = call.from_user.id
+    global broadcaster_id
     global broadcast_id
-    broadcast_id = int(call.data.split('_')[1])
+    broadcaster_id = int(call.data.split('_')[1])
+    broadcast_id = int(call.data.split('_')[2])
     bot.send_message(user_id, 'Kirim pesan respons Anda')
     user_states[user_id] = 'response'
 
@@ -317,11 +321,12 @@ user_states = {}
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     user_id = message.chat.id
+    broadcast_message_id = message.message_id
     user_message = message.text
     global chosen_witel
     message_error_bc = 'Anda tidak dapat mengirim broadcast'
     markup = types.InlineKeyboardMarkup()
-    response_button = types.InlineKeyboardButton('Response', callback_data=f'response_{user_id}')
+    response_button = types.InlineKeyboardButton('Response', callback_data=f'response_{user_id}_{broadcast_message_id}')
     markup.add(response_button)
 
     if user_id in user_states:
@@ -383,11 +388,12 @@ def handle_message(message):
                 bot.send_message(user_id, "There are no registered users in the database.")
             del user_states[user_id]
         elif user_states[user_id] == 'response':
-            global broadcast_id
+            global broadcaster_id, broadcast_id
             data = registered_users.find_one({'chat_id': user_id})
-            bot.send_message(broadcast_id, f'From {data["nama"]}: {user_message}')
+            response_message = f'From {data["nama"]}: {user_message}'
+            bot.send_message(broadcaster_id, response_message, reply_to_message_id=broadcast_id)
             bot.send_message(user_id, 'Response sent to broadcaster')
-            broadcast_id = 0
+            broadcaster_id = 0
             del user_states[user_id]
         elif user_states[user_id] == 'register':
             global registration_step
