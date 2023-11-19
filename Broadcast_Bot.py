@@ -1,6 +1,9 @@
 import telebot
 import pymongo
 from telebot import types
+import requests
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # Initialize the bot
 bot = telebot.TeleBot('6405987197:AAGxNvapAVDc-ny_rcrmri586Wau1NamR1A')
@@ -8,6 +11,13 @@ bot = telebot.TeleBot('6405987197:AAGxNvapAVDc-ny_rcrmri586Wau1NamR1A')
 # Initialize the MongoDB client and database
 mongo_client = pymongo.MongoClient('mongodb+srv://telkomroc7:1hzi8GmOaVcm5YtA@cluster0.rjupjti.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp')
 db = mongo_client['telkomroc7']
+
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name('broadcast-bot-405401-1b87de6e7576.json', scope)
+client = gspread.authorize(credentials)
+spreadsheet_key = '11SDJGATOVASTo76qmXacYuVVq2MuF99vow_plA5yCSM'
+worksheet = client.open_by_key(spreadsheet_key).sheet1
+
 
 # Create collections for registered users and registration requests
 registered_users = db['registered_users']
@@ -80,6 +90,19 @@ def start(message):
                              + 'Welcome to the bot, anda belum terdaftar. Silahkan menggunakan /register untuk mendaftar!\n\n'
                              + template_message)
 
+def download_and_save_to_sheets():
+    excel_url = 'https://oss-incident.telkom.co.id/jw/web/json/app/ticketIncidentService/42/plugin/org.joget.marketplace.DownloadCsvOrExcelDatalistAction/service?uniqueId=74c9ea1f-3110-4a26-90d5-81d6ce50c628&filename=report.xlsx'
+
+    response = requests.get(url=excel_url)
+
+    content = response.content
+    worksheet.clear()
+    client.import_csv(spreadsheet_key, content)
+
+@bot.message_handler(commands=['updatedata'])
+def updateData(message):
+    download_and_save_to_sheets()
+    bot.reply_to(message, 'Data telah diperbarui')
 # Menambahkan langkah-langkah dalam proses registrasi
 
 form_features = ['nama', 'nik', 'jabatan', 'witel']
