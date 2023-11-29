@@ -21,11 +21,9 @@ client = gspread.authorize(credentials)
 spreadsheet_key = '11SDJGATOVASTo76qmXacYuVVq2MuF99vow_plA5yCSM'
 worksheet = client.open_by_key(spreadsheet_key).sheet1
 
-
 # Create collections for registered users and registration requests
 registered_users = db['registered_users']
 registration_requests = db['registration_requests']
-
 
 template_message = "+-----------+-----------+---------------+---------+\n"
 # Admin user IDs
